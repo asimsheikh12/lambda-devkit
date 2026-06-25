@@ -1,6 +1,6 @@
 # Lambda DevKit
 
-**Test AWS Lambda handlers on your laptop** — same `handler` export, realistic events, CloudWatch-style logs. Optional real SQS/SNS against a dev account.
+**Test AWS Lambda handlers loacally** — same `handler` export, realistic events, CloudWatch-style logs. Optional real SQS/SNS against a dev account.
 
 | | Name |
 |---|------|
