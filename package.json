@@ -1,0 +1,76 @@
+{
+  "name": "aws-lambda-devkit",
+  "version": "0.1.0",
+  "description": "Local AWS Lambda development toolkit (npm: aws-lambda-devkit, CLI: lamkit) — invoke handlers locally with AWS-shaped events",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "lamkit": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "templates",
+    "docs",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./config": {
+      "types": "./dist/config/types.d.ts",
+      "import": "./dist/config/types.js"
+    }
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && node --test tests/**/*.test.js",
+    "pack:check": "npm run build && node scripts/pack-check.mjs",
+    "publish:dry-run": "bash scripts/publish-dry-run.sh",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@types/aws-lambda": "^8.10.162",
+    "commander": "^15.0.0",
+    "picocolors": "^1.1.1",
+    "zod": "^3.24.2"
+  },
+  "peerDependencies": {
+    "@aws-sdk/client-sns": "^3.0.0",
+    "@aws-sdk/client-sqs": "^3.0.0",
+    "tsx": "^4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@aws-sdk/client-sns": {
+      "optional": true
+    },
+    "@aws-sdk/client-sqs": {
+      "optional": true
+    },
+    "tsx": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.2"
+  },
+  "keywords": [
+    "aws",
+    "lambda",
+    "local",
+    "development",
+    "sqs",
+    "cli"
+  ]
+}
