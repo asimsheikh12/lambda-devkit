@@ -41,7 +41,7 @@
     "build": "rm -rf dist && tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "tsc -p tsconfig.json --noEmit",
-    "test": "npm run build && node --test tests/**/*.test.js",
+    "test": "npm run build && node scripts/run-tests.mjs",
     "pack:check": "npm run build && node scripts/pack-check.mjs",
     "publish:dry-run": "bash scripts/publish-dry-run.sh",
     "prepublishOnly": "npm run build"
