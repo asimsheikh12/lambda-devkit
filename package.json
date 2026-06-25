@@ -1,6 +1,6 @@
 {
   "name": "aws-lambda-devkit",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Local AWS Lambda development toolkit (npm: aws-lambda-devkit, CLI: lamkit) — invoke handlers locally with AWS-shaped events",
   "license": "MIT",
   "repository": {
