@@ -1,6 +1,10 @@
 # Lambda DevKit
 
-**Test AWS Lambda handlers loacally** — same `handler` export, realistic events, CloudWatch-style logs. Optional real SQS/SNS against a dev account.
+[![npm version](https://img.shields.io/npm/v/aws-lambda-devkit)](https://www.npmjs.com/package/aws-lambda-devkit)
+[![License: MIT](https://img.shields.io/npm/l/aws-lambda-devkit)](https://github.com/asimsheikh12/lambda-devkit/blob/main/LICENSE)
+[![CI](https://github.com/asimsheikh12/lambda-devkit/actions/workflows/ci.yml/badge.svg)](https://github.com/asimsheikh12/lambda-devkit/actions/workflows/ci.yml)
+
+**Test AWS Lambda handlers locally** — same `handler` export, realistic events, CloudWatch-style logs. Optional real SQS/SNS against a dev account.
 
 | | Name |
 |---|------|
@@ -8,8 +12,6 @@
 | **npm package** | [`aws-lambda-devkit`](https://www.npmjs.com/package/aws-lambda-devkit) |
 | **CLI command** | `lamkit` |
 | **Config file** | `lamkit.config.js` (also `.mjs`, `.cjs`, `.ts`) |
-
-![CI](https://github.com/asimsheikh12/lambda-devkit/actions/workflows/ci.yml/badge.svg)
 
 Install as a dev dependency. Complements SAM, CDK, and SST; does not deploy infrastructure.
 
