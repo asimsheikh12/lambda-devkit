@@ -3,6 +3,14 @@
   "version": "0.1.0",
   "description": "Local AWS Lambda development toolkit (npm: aws-lambda-devkit, CLI: lamkit) — invoke handlers locally with AWS-shaped events",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asimsheikh12/lambda-devkit.git"
+  },
+  "homepage": "https://github.com/asimsheikh12/lambda-devkit#readme",
+  "bugs": {
+    "url": "https://github.com/asimsheikh12/lambda-devkit/issues"
+  },
   "type": "module",
   "engines": {
     "node": ">=20"

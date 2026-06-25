@@ -4,9 +4,12 @@
 
 | | Name |
 |---|------|
+| **Repository** | [github.com/asimsheikh12/lambda-devkit](https://github.com/asimsheikh12/lambda-devkit) |
 | **npm package** | [`aws-lambda-devkit`](https://www.npmjs.com/package/aws-lambda-devkit) |
 | **CLI command** | `lamkit` |
 | **Config file** | `lamkit.config.js` (also `.mjs`, `.cjs`, `.ts`) |
+
+![CI](https://github.com/asimsheikh12/lambda-devkit/actions/workflows/ci.yml/badge.svg)
 
 Install as a dev dependency. Complements SAM, CDK, and SST; does not deploy infrastructure.
 

@@ -1,6 +1,6 @@
 # Lambda DevKit documentation
 
-Guides for **[Lambda DevKit](https://www.npmjs.com/package/aws-lambda-devkit)** — npm package **`aws-lambda-devkit`**, CLI **`lamkit`**.
+Guides for **[Lambda DevKit](https://github.com/asimsheikh12/lambda-devkit)** — npm package **`aws-lambda-devkit`**, CLI **`lamkit`**.
 
 Complete walkthroughs for integrating the toolkit into your Node.js Lambda project. All examples use generic names (`worker`, `WORKER_QUEUE_URL`, etc.) — copy them and replace with your own paths and env vars.
 
