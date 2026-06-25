@@ -1,8 +1,8 @@
 # Lambda DevKit
 
-[![npm version](https://img.shields.io/npm/v/aws-lambda-devkit)](https://www.npmjs.com/package/aws-lambda-devkit)
-[![License: MIT](https://img.shields.io/npm/l/aws-lambda-devkit)](https://github.com/asimsheikh12/lambda-devkit/blob/main/LICENSE)
-[![CI](https://github.com/asimsheikh12/lambda-devkit/actions/workflows/ci.yml/badge.svg)](https://github.com/asimsheikh12/lambda-devkit/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/aws-lambda-devkit.svg?style=flat-square&logo=npm&label=npm&cacheSeconds=300)](https://www.npmjs.com/package/aws-lambda-devkit)
+[![License: MIT](https://img.shields.io/npm/l/aws-lambda-devkit.svg?style=flat-square&label=license)](https://github.com/asimsheikh12/lambda-devkit/blob/main/LICENSE)
+[![CI](https://github.com/asimsheikh12/lambda-devkit/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/asimsheikh12/lambda-devkit/actions/workflows/ci.yml)
 
 **Test AWS Lambda handlers locally** — same `handler` export, realistic events, CloudWatch-style logs. Optional real SQS/SNS against a dev account.
 
