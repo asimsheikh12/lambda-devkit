@@ -2,6 +2,19 @@
 
 All notable changes to **aws-lambda-devkit** are documented in this file.
 
+## [0.1.6] - 2026-07-02
+
+### Fixed
+
+- **`LAMKIT_VERSION` export** — now matches the published package version
+- **Handler type** — `void | Promise<unknown>` return type (no redundant `unknown` union members)
+- **S3 event builder** — string fields read safely from payload objects
+
+### Changed
+
+- **ESLint** — type-aware rules (`recommendedTypeChecked`) for `src/**/*.ts`, catching issues SonarLint reports (e.g. redundant union types)
+- **`lint:eslint`** — now includes `tests/` with Node globals
+
 ## [0.1.5] - 2026-07-01
 
 ### Fixed
