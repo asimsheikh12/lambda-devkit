@@ -11,6 +11,16 @@ export class AssetLinkError extends Error {
   }
 }
 
+const ensuredAssetLinkKeys = new Set<string>();
+
+function assetLinksCacheKey(cwd: string, links: AssetLink[] | undefined): string {
+  return `${cwd}\0${JSON.stringify(links ?? [])}`;
+}
+
+export function clearAssetLinkCache(): void {
+  ensuredAssetLinkKeys.clear();
+}
+
 /**
  * Ensure local asset paths exist before loading handlers.
  *
@@ -20,9 +30,16 @@ export class AssetLinkError extends Error {
  * a symlink when `path` is missing and `target` exists.
  */
 export function ensureAssetLinks(cwd: string, links: AssetLink[] | undefined): void {
+  const cacheKey = assetLinksCacheKey(cwd, links);
+  if (ensuredAssetLinkKeys.has(cacheKey)) {
+    return;
+  }
+
   for (const link of links ?? []) {
     ensureAssetLink(cwd, link);
   }
+
+  ensuredAssetLinkKeys.add(cacheKey);
 }
 
 function ensureAssetLink(cwd: string, { path, target }: AssetLink): void {

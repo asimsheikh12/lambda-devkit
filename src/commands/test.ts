@@ -1,11 +1,11 @@
 import { spawnSync } from 'node:child_process';
 import pc from 'picocolors';
-import { loadConfig } from '../config/load.js';
+import { loadConfig, type LoadConfigOptions } from '../config/load.js';
 import { resolveFunction, type MergedFunctionConfig } from '../config/merge.js';
 import { buildEventForTrigger } from '../events/index.js';
 import { queueArnFromUrl } from '../events/sqs-record.js';
 import { resetColdStart, setInitDurationMs } from '../runtime/context.js';
-import { clearAllHandlerCaches } from '../runtime/clear-caches.js';
+import { clearAllHandlerCaches, clearAllRuntimeCaches } from '../runtime/clear-caches.js';
 import { countBatchItemFailures } from '../aws/batch-response.js';
 import { invokeHandler, type InvokeResult } from '../runtime/invoke.js';
 import { loadHandler } from '../runtime/loader.js';
@@ -18,12 +18,15 @@ export type TestCommandOptions = {
   eventPath?: string;
   env?: string[];
   all?: boolean;
+  parallel?: boolean;
   dryRun?: boolean;
   cold?: boolean;
   reload?: boolean;
+  reloadConfig?: boolean;
   batchSize?: number;
   verbose?: boolean;
   pretty?: boolean;
+  rawLogs?: boolean;
   inspect?: boolean;
   inspectBrk?: boolean;
   strictBatch?: boolean;
@@ -101,6 +104,44 @@ export function resolveTestExitCode(
   return 0;
 }
 
+function printTestResult(
+  fn: MergedFunctionConfig,
+  result: InvokeResult,
+  pretty: boolean,
+): void {
+  if (pretty) {
+    const status = result.success ? pc.green('✓') : pc.red('✗');
+    console.log(`${status} ${fn.name} (${fn.trigger}) — ${Math.round(result.durationMs)}ms`);
+
+    if (!result.success && result.error) {
+      console.error(pc.red(result.error.message));
+    }
+
+    if (result.logs.length > 0) {
+      console.log('\nLogs:');
+      for (const logLine of result.logs) {
+        console.log(logLine);
+      }
+    }
+    return;
+  }
+
+  for (const logLine of result.logs) {
+    console.log(logLine);
+  }
+}
+
+function canRunParallelAll(options: TestCommandOptions): boolean {
+  return (
+    !!options.parallel &&
+    !options.env?.length &&
+    !options.reload &&
+    !options.cold &&
+    !options.inspect &&
+    !options.inspectBrk
+  );
+}
+
 async function runSingleFunctionTest(
   fn: MergedFunctionConfig,
   options: TestCommandOptions,
@@ -135,26 +176,8 @@ async function runSingleFunctionTest(
     setInitDurationMs(Date.now() - loadStarted);
   }
 
-  const result = await invokeHandler(handler, event, fn);
-  const pretty = options.pretty ?? true;
-
-  if (pretty) {
-    const status = result.success ? pc.green('✓') : pc.red('✗');
-    console.log(`${status} ${fn.name} (${fn.trigger}) — ${Math.round(result.durationMs)}ms`);
-
-    if (!result.success && result.error) {
-      console.error(pc.red(result.error.message));
-    }
-
-    console.log('\nLogs:');
-    for (const logLine of result.logs) {
-      console.log(logLine);
-    }
-  } else {
-    for (const logLine of result.logs) {
-      console.log(logLine);
-    }
-  }
+  const result = await invokeHandler(handler, event, fn, { rawLogs: options.rawLogs });
+  printTestResult(fn, result, options.pretty ?? true);
 
   return resolveTestExitCode(result, { strictBatch: options.strictBatch });
 }
@@ -166,9 +189,24 @@ export async function runTestCommand(
   maybeReexecForInspect(options);
 
   const cwd = options.cwd ?? process.cwd();
-  const config = await loadConfig(cwd);
+  const configOptions: LoadConfigOptions | undefined = options.reloadConfig
+    ? { reload: true }
+    : undefined;
+
+  if (options.reloadConfig) {
+    clearAllRuntimeCaches();
+  }
+
+  const config = await loadConfig(cwd, configOptions);
 
   if (options.all) {
+    if (canRunParallelAll(options)) {
+      const codes = await Promise.all(
+        config.functions.map((fn) => runSingleFunctionTest(fn, options)),
+      );
+      return codes.some((code) => code !== 0) ? 1 : 0;
+    }
+
     let exitCode = 0;
     for (const fn of config.functions) {
       const code = await runSingleFunctionTest(fn, options);

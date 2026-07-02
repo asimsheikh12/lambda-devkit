@@ -137,12 +137,27 @@ npx lamkit test --dry-run --data '{"id":"1"}'
 npx lamkit test --inspect
 npx lamkit test --inspect-brk
 
-# Reload handler module (bypass cache after code change)
+# Reload handler after code change
 npx lamkit test --reload --data '{"id":"1"}'
 
 # Simulate cold start (Init Duration in REPORT)
 npx lamkit test --cold --data '{"id":"1"}'
+
+# Faster invoke (skip console capture)
+npx lamkit test --raw-logs --data '{"id":"1"}'
+
+# Invoke all functions in parallel (no --env / --reload / --cold / --inspect)
+npx lamkit test --all --parallel
+
+# Reload config module (long-lived processes)
+npx lamkit test --reload-config --data '{"id":"1"}'
 ```
+
+**`--parallel`:** Only applies with `--all`. Ignored when `--env`, `--reload`, `--cold`, or `--inspect` is set.
+
+**`--raw-logs`:** Handler `console.log` goes straight to stdout; no duplicate lines in the `START`/`END` block.
+
+**`--reload-config`:** Re-reads `lamkit.config.*` from disk (also available on `list`, `config`, and `send`).
 
 ### Exit codes
 
@@ -236,6 +251,8 @@ npx lamkit listen worker --no-delete          # keep messages on queue (debug on
 npx lamkit listen worker --reload             # reload handler each batch
 npx lamkit listen worker --queue-url 'https://sqs...'
 npx lamkit listen worker --no-extend-visibility
+npx lamkit listen worker --raw-logs              # skip console capture (faster)
+npx lamkit listen worker --strict-failures       # exit 1 on any batch failure (CI)
 ```
 
 ### Typical dev loop (two terminals)
@@ -256,11 +273,12 @@ Use a **dev-only queue**. Pause the deployed Lambda event source mapping while l
 
 ### Message lifecycle (AWS-aligned)
 
-| Handler result | Queue behavior |
-|----------------|----------------|
-| Success | Message deleted |
-| Throw or `batchItemFailures` | Message **not** deleted; becomes visible again after timeout |
-| `--no-delete` | Never delete (debug escape hatch) |
+| Handler result | Queue behavior | Exit code (default) |
+|----------------|----------------|---------------------|
+| Success | Message deleted | 0 |
+| Throw or `batchItemFailures` | Message **not** deleted; becomes visible again after timeout | 0 if other messages in the batch succeeded; 1 if all failed |
+| `--no-delete` | Never delete (debug escape hatch) | — |
+| `--strict-failures` | Same as above | 1 when any message in the batch fails |
 
 ---
 
@@ -270,7 +288,13 @@ Most commands accept:
 
 ```bash
 npx lamkit test worker --cwd /path/to/lambda-package --data '{"id":"1"}'
+npx lamkit list --reload-config
 ```
+
+| Flag | Description |
+|------|-------------|
+| `--cwd <dir>` | Project root (default: current directory) |
+| `--reload-config` | Re-read `lamkit.config.*` from disk (bypass in-memory cache) |
 
 ---
 

@@ -6,8 +6,11 @@ function pad(value: string, width: number): string {
   return value.length >= width ? value : value + ' '.repeat(width - value.length);
 }
 
-export async function runListCommand(cwd: string = process.cwd()): Promise<number> {
-  const config = await loadConfig(cwd);
+export async function runListCommand(
+  cwd: string = process.cwd(),
+  options: { reloadConfig?: boolean } = {},
+): Promise<number> {
+  const config = await loadConfig(cwd, options.reloadConfig ? { reload: true } : undefined);
 
   const rows = config.functions.map((fn) => ({
     name: fn.name,

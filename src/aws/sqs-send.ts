@@ -31,18 +31,17 @@ export function buildSqsSendInput(options: {
 
 export async function sendSqsMessage(options: SendSqsOptions): Promise<string> {
   const cwd = options.cwd ?? process.cwd();
-  const { SendMessageCommand } = (await importSqsSdk(cwd)) as {
+  const sdk = await importSqsSdk(cwd);
+  const { SendMessageCommand } = sdk as {
     SendMessageCommand: new (input: unknown) => unknown;
   };
-  const client = (await loadSqsClient(options.region, cwd, options.endpoint)) as {
-    send(command: unknown): Promise<{ MessageId?: string }>;
-  };
+  const client = await loadSqsClient(options.region, cwd, options.endpoint, sdk);
   const body =
     options.message ?? serializePayload(options.data ?? { message: 'hello from lamkit' });
 
   const input = buildSqsSendInput({ queueUrl: options.queueUrl, body });
 
-  const response = (await client.send(new SendMessageCommand(input))) as { MessageId?: string };
+  const response = await client.send(new SendMessageCommand(input));
 
   if (!response.MessageId) {
     throw new Error('SendMessage succeeded but no MessageId returned');

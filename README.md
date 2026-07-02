@@ -140,6 +140,7 @@ lamkit test [name] --data '{"key":"value"}'
 lamkit test --data-file events/payload.json
 lamkit test --event events/captured-sqs.json
 lamkit test --all
+lamkit test --all --parallel
 lamkit test --inspect-brk
 lamkit list
 lamkit config [name]
@@ -167,7 +168,7 @@ Full command reference: [Commands](docs/commands.md)
 | `lamkit send sqs` / `lamkit listen` | `@aws-sdk/client-sqs` |
 | `lamkit send sns` | `@aws-sdk/client-sns` |
 
-Default install is **4 small dependencies** (~5 MB): `zod`, `commander`, `picocolors`, `@types/aws-lambda`.
+Default install is **4 small runtime dependencies** (~0.2 MB unpacked): `zod`, `commander`, `picocolors`, `@types/aws-lambda`.
 
 ---
 

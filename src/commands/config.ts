@@ -21,8 +21,9 @@ function maskAwsFields(fn: Record<string, unknown>): Record<string, unknown> {
 export async function runConfigCommand(
   functionName: string | undefined,
   cwd: string = process.cwd(),
+  options: { reloadConfig?: boolean } = {},
 ): Promise<number> {
-  const config = await loadConfig(cwd);
+  const config = await loadConfig(cwd, options.reloadConfig ? { reload: true } : undefined);
   const fn = resolveFunction(config, functionName);
 
   const output = redactSecrets(

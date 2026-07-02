@@ -68,7 +68,11 @@ export type ConsolePatch = {
 
 const consoleMethods = ['log', 'info', 'warn', 'error', 'debug'] as const;
 
-export function patchConsole(write: (line: string) => void): ConsolePatch {
+export function patchConsole(
+  write: (line: string) => void,
+  options?: { forward?: boolean },
+): ConsolePatch {
+  const forward = options?.forward ?? true;
   const originals = new Map<string, (...args: unknown[]) => void>();
 
   for (const method of consoleMethods) {
@@ -90,7 +94,9 @@ export function patchConsole(write: (line: string) => void): ConsolePatch {
         .join(' ');
 
       write(formatted);
-      original(...args);
+      if (forward) {
+        original(...args);
+      }
     };
   }
 

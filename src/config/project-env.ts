@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs';
-import { isAbsolute, join, resolve } from 'node:path';
+import { isAbsolute, resolve } from 'node:path';
 
 export type ProjectEnvRule = {
   /** All keys must match process.env (e.g. { sslOn: 'true' }). */

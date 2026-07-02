@@ -384,6 +384,54 @@ Or use test credentials / LocalStack keys with endpoint URL.
 
 ---
 
+## Performance tips
+
+Local dev speed is usually dominated by your handler and module load time. These lamkit options reduce toolkit overhead:
+
+### Use compiled JavaScript handlers
+
+Point `entry` at `dist/handler.js` (or run `npm run build` before testing). TypeScript entries (`./src/handler.ts`) require the optional `tsx` peer and transpile on each cold load.
+
+```js
+// Faster for tight loops
+entry: './dist/handler.js',
+```
+
+### Faster `lamkit listen`
+
+| Flag / config | Effect |
+|---------------|--------|
+| `--raw-logs` | Skips console capture during invoke (handler logs go straight to stdout) |
+| `--no-extend-visibility` | Skips visibility heartbeat API calls |
+| Default batch invoke | One handler call per poll batch (avoid `--no-batch-invoke`) |
+| `aws.attributeNames` / `aws.messageAttributeNames` | Request fewer SQS attributes per poll |
+
+Example minimal SQS poll payload in config:
+
+```js
+aws: {
+  queueUrl: 'https://sqs.us-east-1.amazonaws.com/123456789012/my-queue',
+  attributeNames: [],
+  messageAttributeNames: [],
+},
+```
+
+### Faster `lamkit test --all`
+
+Run functions concurrently when you do not need per-function `--env` overrides:
+
+```bash
+npx lamkit test --all --parallel
+```
+
+`--parallel` is ignored when `--env`, `--reload`, `--cold`, or `--inspect` is set.
+
+### Config caching
+
+lamkit caches parsed config by file modification time. Use `--reload-config` after editing `lamkit.config.*` in a long-lived process.
+
+---
+
 ## Still stuck?
 
 1. Minimal repro: one handler, one `test.data`, no AWS calls.

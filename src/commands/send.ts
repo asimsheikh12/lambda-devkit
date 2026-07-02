@@ -9,6 +9,7 @@ export type SendSqsCommandOptions = {
   dataFile?: string;
   message?: string;
   queueUrl?: string;
+  reloadConfig?: boolean;
 };
 
 export type SendSnsCommandOptions = {
@@ -17,6 +18,7 @@ export type SendSnsCommandOptions = {
   dataFile?: string;
   message?: string;
   topicArn?: string;
+  reloadConfig?: boolean;
 };
 
 export async function runSendSqsCommand(
@@ -24,7 +26,8 @@ export async function runSendSqsCommand(
   options: SendSqsCommandOptions = {},
 ): Promise<number> {
   const cwd = options.cwd ?? process.cwd();
-  const { fn } = await resolveConfigFunction(functionName, cwd);
+  const configOptions = options.reloadConfig ? { reload: true } : undefined;
+  const { fn } = await resolveConfigFunction(functionName, cwd, configOptions);
   const queueUrl = options.queueUrl ?? fn.aws.queueUrl;
 
   if (!queueUrl) {
@@ -57,7 +60,8 @@ export async function runSendSnsCommand(
   options: SendSnsCommandOptions = {},
 ): Promise<number> {
   const cwd = options.cwd ?? process.cwd();
-  const { fn } = await resolveConfigFunction(functionName, cwd);
+  const configOptions = options.reloadConfig ? { reload: true } : undefined;
+  const { fn } = await resolveConfigFunction(functionName, cwd, configOptions);
   const topicArn = options.topicArn ?? fn.aws.topicArn;
 
   if (!topicArn) {

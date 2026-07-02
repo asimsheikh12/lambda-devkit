@@ -121,12 +121,16 @@ export async function invokeHandler(
   handler: Handler,
   event: unknown,
   fn: MergedFunctionConfig,
-  options?: { context?: Context; logCapture?: LogCapture },
+  options?: { context?: Context; logCapture?: LogCapture; rawLogs?: boolean; captureOnly?: boolean },
 ): Promise<InvokeResult> {
   const context = options?.context ?? createContext(fn);
   const capture = options?.logCapture ?? createLogCapture();
   const applicationLogs: string[] = [];
-  const consolePatch = patchConsole((line) => applicationLogs.push(line));
+  const consolePatch = options?.rawLogs
+    ? { restore() {} }
+    : patchConsole((line) => applicationLogs.push(line), {
+        forward: !options?.captureOnly,
+      });
 
   const startedAt = Date.now();
 

@@ -33,7 +33,7 @@ export function createVisibilityHeartbeat(options: {
       );
 
       timer = setInterval(() => {
-        void options.extendVisibility(handles, options.visibilitySeconds);
+        options.extendVisibility(handles, options.visibilitySeconds).catch(() => undefined);
       }, intervalMs);
     },
     stop() {

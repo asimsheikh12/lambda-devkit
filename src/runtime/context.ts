@@ -39,7 +39,7 @@ export function createContext(fn: MergedFunctionConfig): Context {
     memoryLimitInMB: String(fn.memorySize),
     awsRequestId: requestId,
     logGroupName: `/aws/lambda/${fn.name}`,
-    logStreamName: new Date().toISOString().slice(0, 10).replace(/-/g, '/') + '/[$LATEST]',
+    logStreamName: new Date().toISOString().slice(0, 10).replaceAll('-', '/') + '/[$LATEST]',
     getRemainingTimeInMillis: () => Math.max(0, timeoutMs - (Date.now() - startedAt)),
     done: () => undefined,
     fail: () => undefined,

@@ -18,7 +18,7 @@ import {
 import { loadEnvFile } from '../dist/config/env.js';
 import { parseConfig } from '../dist/config/schema.js';
 import { mergeConfig } from '../dist/config/merge.js';
-import { resolveListenExitCode } from '../dist/commands/listen.js';
+import { resolveListenExitCode, resolveListenCommandFlags } from '../dist/commands/listen.js';
 import { resolveTestExitCode } from '../dist/commands/test.js';
 import { loadRawConfig } from '../dist/config/load.js';
 import { buildApiGatewayEvent } from '../dist/events/apigw.js';
@@ -243,6 +243,22 @@ describe('invokeHandler', () => {
     assert.equal(report.type, 'platform.report');
     assert.equal(report.record.durationMs, result.durationMs);
   });
+
+  it('skips console capture when rawLogs is enabled', async () => {
+    const handler = async () => {
+      console.log('direct');
+      return 'ok';
+    };
+    const result = await invokeHandler(handler, {}, plainFn, {
+      context: createContext(plainFn),
+      rawLogs: true,
+    });
+
+    assert.equal(result.success, true);
+    assert.equal(result.applicationLogs.length, 0);
+    assert.ok(result.logs.some((line) => line.startsWith('START RequestId:')));
+    assert.ok(result.logs.some((line) => line.startsWith('REPORT RequestId:')));
+  });
 });
 
 describe('cold start init duration', () => {
@@ -353,15 +369,59 @@ describe('importPeerFromConsumer', () => {
 
 describe('resolveListenExitCode', () => {
   it('returns 1 when --expect-messages and poll was empty', () => {
-    assert.equal(resolveListenExitCode({ failures: 0, messagesReceived: 0 }, { expectMessages: true }), 1);
+    assert.equal(
+      resolveListenExitCode({ failures: 0, messagesReceived: 0, processed: 0 }, { expectMessages: true }),
+      1,
+    );
   });
 
   it('returns 0 when messages were received', () => {
-    assert.equal(resolveListenExitCode({ failures: 0, messagesReceived: 2 }, { expectMessages: true }), 0);
+    assert.equal(
+      resolveListenExitCode({ failures: 0, messagesReceived: 2, processed: 2 }, { expectMessages: true }),
+      0,
+    );
   });
 
-  it('returns 1 when any message failed', () => {
-    assert.equal(resolveListenExitCode({ failures: 1, messagesReceived: 1 }, { expectMessages: false }), 1);
+  it('returns 0 on partial batch failure by default', () => {
+    assert.equal(
+      resolveListenExitCode({ failures: 1, messagesReceived: 3, processed: 2 }, { expectMessages: false }),
+      0,
+    );
+  });
+
+  it('returns 1 when all messages failed', () => {
+    assert.equal(
+      resolveListenExitCode({ failures: 2, messagesReceived: 2, processed: 0 }, { expectMessages: false }),
+      1,
+    );
+  });
+
+  it('returns 1 on partial failure with --strict-failures', () => {
+    assert.equal(
+      resolveListenExitCode(
+        { failures: 1, messagesReceived: 3, processed: 2 },
+        { strictFailures: true },
+      ),
+      1,
+    );
+  });
+});
+
+describe('resolveListenCommandFlags', () => {
+  it('maps Commander negated listen flags', () => {
+    assert.deepEqual(resolveListenCommandFlags({ delete: false, extendVisibility: false, batchInvoke: false }), {
+      deleteOnSuccess: false,
+      extendVisibility: false,
+      batchInvoke: false,
+    });
+  });
+
+  it('defaults delete, visibility extension, and batch invoke to true', () => {
+    assert.deepEqual(resolveListenCommandFlags({}), {
+      deleteOnSuccess: true,
+      extendVisibility: true,
+      batchInvoke: true,
+    });
   });
 });
 
@@ -410,6 +470,31 @@ describe('processSqsMessages', () => {
 
     assert.equal(result.failures, 1);
     assert.equal(result.processed, 0);
+  });
+
+  it('batch-deletes successful messages in one callback', async () => {
+    const handler = async (event) => ({ ok: event.Records.length });
+    const deletedBatches = [];
+
+    const result = await processSqsMessages({
+      messages: [
+        { MessageId: 'msg-1', ReceiptHandle: 'rh-1', Body: '{}' },
+        { MessageId: 'msg-2', ReceiptHandle: 'rh-2', Body: '{}' },
+      ],
+      handler,
+      fn: plainFn,
+      queueArn: 'arn:aws:sqs:us-east-1:000000000000:queue',
+      region: 'us-east-1',
+      batchInvoke: true,
+      deleteOnSuccess: true,
+      deleteMessages: async (handles) => {
+        deletedBatches.push(handles);
+      },
+    });
+
+    assert.equal(result.processed, 2);
+    assert.equal(deletedBatches.length, 1);
+    assert.deepEqual(deletedBatches[0], ['rh-1', 'rh-2']);
   });
 
   it('detects partial batch failures via batchItemFailures', () => {

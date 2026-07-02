@@ -5,7 +5,6 @@ import type {
   FunctionConfig,
   LamkitConfig,
   LamkitConfigInput,
-  Trigger,
 } from './types.js';
 
 export type {
@@ -39,6 +38,8 @@ const awsResourceSchema = z.object({
   topicArn: z.string().min(1).optional(),
   region: z.string().min(1).optional(),
   endpoint: z.string().url().optional(),
+  messageAttributeNames: z.array(z.string()).optional(),
+  attributeNames: z.array(z.string()).optional(),
 }) satisfies z.ZodType<import('./types.js').AwsResourceConfig>;
 
 const testConfigSchema = z.object({

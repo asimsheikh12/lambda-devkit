@@ -2,6 +2,47 @@
 
 All notable changes to **aws-lambda-devkit** are documented in this file.
 
+## [0.1.5] - 2026-07-01
+
+### Fixed
+
+- **`lamkit listen --no-delete` and `--no-extend-visibility`** — Commander negated flags now map correctly (`delete`, `extendVisibility`); messages are no longer deleted when `--no-delete` is set
+- **Duplicate handler logs during `listen`** — application logs no longer print twice (live stdout + `START`/`END` block)
+- **`listen` exit code on partial batch** — exits `0` when some messages succeed; exits `1` only when all messages in a batch fail (use `--strict-failures` for CI-style strictness)
+- **`listen` missing `queueUrl`** — fails fast with a clear error before loading the AWS SDK
+
+### Added
+
+#### CLI flags
+
+- `lamkit test --parallel` — with `--all`, invoke functions concurrently (skipped when `--env`, `--reload`, `--cold`, or `--inspect` is set)
+- `lamkit test --raw-logs` — skip console capture for faster invokes
+- `lamkit test --reload-config` — bypass in-memory config cache
+- `lamkit listen --raw-logs` — skip console capture in the listen loop
+- `lamkit listen --strict-failures` — exit `1` when any message in a poll batch fails
+- `--reload-config` on `list`, `config`, and `send` commands
+
+#### Configuration
+
+- `functions[].aws.attributeNames` and `functions[].aws.messageAttributeNames` — control SQS `ReceiveMessage` payload size during `listen`
+
+#### Performance
+
+- Lazy-load CLI commands (faster startup for `list`, `config`, etc.)
+- Cache AWS SDK peer imports, parsed config (by file mtime), and asset-link checks
+- SQS `DeleteMessageBatch` and `ChangeMessageVisibilityBatch` during `listen`
+- Config import uses stable `?v={mtime}` instead of busting cache on every load
+
+### Changed
+
+- Published tarball no longer includes source maps (smaller install, ~0.18 MB unpacked)
+- `package.json` sets `"sideEffects": false` for better tree-shaking in bundlers
+
+### Quality
+
+- Security CI: `npm audit`, ESLint (SonarJS), Dependabot, CodeQL
+- 111 unit tests including exception and edge-case coverage (`tests/edge-cases.test.js`)
+
 ## [0.1.0] - 2026-06-23
 
 **Initial public release** of `aws-lambda-devkit` — a local development toolkit for Node.js AWS Lambda handlers.

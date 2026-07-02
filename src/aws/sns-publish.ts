@@ -12,21 +12,20 @@ export type PublishSnsOptions = {
 
 export async function publishSnsMessage(options: PublishSnsOptions): Promise<string> {
   const cwd = options.cwd ?? process.cwd();
-  const { PublishCommand } = (await importSnsSdk(cwd)) as {
+  const sdk = await importSnsSdk(cwd);
+  const { PublishCommand } = sdk as {
     PublishCommand: new (input: unknown) => unknown;
   };
-  const client = (await loadSnsClient(options.region, cwd, options.endpoint)) as {
-    send(command: unknown): Promise<{ MessageId?: string }>;
-  };
+  const client = await loadSnsClient(options.region, cwd, options.endpoint, sdk);
   const message =
     options.message ?? serializePayload(options.data ?? { message: 'hello from lamkit' });
 
-  const response = (await client.send(
+  const response = await client.send(
     new PublishCommand({
       TopicArn: options.topicArn,
       Message: message,
     }),
-  )) as { MessageId?: string };
+  );
 
   if (!response.MessageId) {
     throw new Error('Publish succeeded but no MessageId returned');

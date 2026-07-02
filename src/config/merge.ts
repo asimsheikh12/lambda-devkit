@@ -32,6 +32,8 @@ export type MergedFunctionConfig = Required<
     queueUrl?: string;
     topicArn?: string;
     endpoint?: string;
+    messageAttributeNames?: string[];
+    attributeNames?: string[];
   };
 };
 
@@ -100,6 +102,8 @@ function mergeFunction(
       queueUrl: fn.aws?.queueUrl,
       topicArn: fn.aws?.topicArn,
       endpoint: fn.aws?.endpoint ?? defaults.aws.endpoint,
+      messageAttributeNames: fn.aws?.messageAttributeNames,
+      attributeNames: fn.aws?.attributeNames,
     },
   };
 }

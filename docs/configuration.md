@@ -221,7 +221,7 @@ export default {
 | `timeout` | No | Overrides `defaults.timeout` |
 | `logFormat` | No | Overrides `defaults.logFormat` |
 | `test.data` | No | Default `--data` when CLI omits it |
-| `aws.*` | No | Queue/topic/region for send, listen, realistic ARNs |
+| `aws.*` | No | Queue/topic/region for send, listen, realistic ARNs; optional SQS receive tuning (`attributeNames`, `messageAttributeNames`) |
 
 ### `entry` — which file to load
 
@@ -421,6 +421,27 @@ defaults: {
     region: 'us-east-1',
     endpoint: process.env.AWS_ENDPOINT_URL,
   },
+},
+```
+
+### `aws` fields (per function or under `defaults`)
+
+| Field | Used by | Description |
+|-------|---------|-------------|
+| `region` | send, listen | AWS region (default: `AWS_REGION` env → `us-east-1`) |
+| `endpoint` | send, listen | Custom endpoint URL (LocalStack, private cloud) |
+| `queueUrl` | send, listen | SQS queue URL (required for SQS send/listen) |
+| `topicArn` | send | SNS topic ARN (required for SNS send) |
+| `attributeNames` | listen | SQS `AttributeNames` on `ReceiveMessage` (default: all system attributes). Set `[]` for smaller polls |
+| `messageAttributeNames` | listen | SQS `MessageAttributeNames` (default: all). Set `[]` when you do not need message attributes |
+
+Example minimal SQS poll for faster `listen`:
+
+```js
+aws: {
+  queueUrl: process.env.WORKER_QUEUE_URL,
+  attributeNames: [],
+  messageAttributeNames: [],
 },
 ```
 

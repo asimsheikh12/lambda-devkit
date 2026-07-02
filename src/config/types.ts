@@ -43,6 +43,18 @@ export interface AwsResourceConfig {
    * Example: `http://localhost:4566`
    */
   endpoint?: string;
+
+  /**
+   * SQS `ReceiveMessage` message attribute names (default: `['All']`).
+   * Use `['']` or a minimal list to reduce poll payload size.
+   */
+  messageAttributeNames?: string[];
+
+  /**
+   * SQS `ReceiveMessage` system attribute names (default: `['All']`).
+   * Use `['ApproximateReceiveCount']` or `[]` for a lighter poll.
+   */
+  attributeNames?: string[];
 }
 
 /** Region and endpoint defaults shared by all functions. */

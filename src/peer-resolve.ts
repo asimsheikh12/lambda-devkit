@@ -12,6 +12,8 @@ export class MissingPeerError extends Error {
   }
 }
 
+const peerImportCache = new Map<string, Promise<Record<string, unknown>>>();
+
 function createConsumerRequire(cwd: string) {
   const packageJsonPath = join(cwd, 'package.json');
   if (existsSync(packageJsonPath)) {
@@ -33,7 +35,7 @@ function isModuleNotFoundError(error: unknown): boolean {
   return typeof err.message === 'string' && err.message.includes('Cannot find module');
 }
 
-export async function importPeerFromConsumer(
+async function importPeerFromConsumerUncached(
   cwd: string,
   specifier: string,
   feature: string,
@@ -51,4 +53,25 @@ export async function importPeerFromConsumer(
     }
     throw error;
   }
+}
+
+export async function importPeerFromConsumer(
+  cwd: string,
+  specifier: string,
+  feature: string,
+): Promise<Record<string, unknown>> {
+  const cacheKey = `${cwd}\0${specifier}`;
+  let pending = peerImportCache.get(cacheKey);
+  if (!pending) {
+    pending = importPeerFromConsumerUncached(cwd, specifier, feature);
+    peerImportCache.set(cacheKey, pending);
+    pending.catch(() => {
+      peerImportCache.delete(cacheKey);
+    });
+  }
+  return pending;
+}
+
+export function clearPeerImportCache(): void {
+  peerImportCache.clear();
 }
