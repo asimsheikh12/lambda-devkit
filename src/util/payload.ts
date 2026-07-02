@@ -26,7 +26,7 @@ export function readPayloadFile(filePath: string, cwd: string = process.cwd()): 
  * Resolve CLI payload from --data, --data-file, --message, or @path shorthand.
  * --message returns a raw string body; --data/--data-file parse JSON when possible.
  */
-export function resolvePayload(options: PayloadSourceOptions): unknown | undefined {
+export function resolvePayload(options: PayloadSourceOptions): unknown {
   if (options.message !== undefined) {
     return options.message;
   }

@@ -62,7 +62,7 @@ function maybeAddPackageScript(cwd: string, yes: boolean): void {
   console.log('update package.json scripts.test:lambda');
 }
 
-export async function runInitCommand(options: InitCommandOptions = {}): Promise<number> {
+export function runInitCommand(options: InitCommandOptions = {}): number {
   const cwd = options.cwd ?? process.cwd();
 
   for (const relativePath of TEMPLATE_FILES) {

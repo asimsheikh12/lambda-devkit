@@ -61,7 +61,7 @@ async function importConfigModule(
   }
 
   const moduleUrl = `${pathToFileURL(configPath).href}${cacheBust}`;
-  const imported = await import(moduleUrl);
+  const imported = (await import(moduleUrl)) as { default?: LamkitConfig } & LamkitConfig;
   return imported.default ?? imported;
 }
 

@@ -27,7 +27,7 @@ export type MergedFunctionConfig = Required<
   logFormat: LogFormat;
   tracing: boolean;
   region: string;
-  test?: FunctionConfig['test'];
+  test: FunctionConfig['test'];
   aws: {
     queueUrl?: string;
     topicArn?: string;
@@ -114,7 +114,11 @@ export function resolveFunction(
 ): MergedFunctionConfig {
   if (!name) {
     if (config.functions.length === 1) {
-      return config.functions[0]!;
+      const [onlyFunction] = config.functions;
+      if (!onlyFunction) {
+        throw new Error('Function name required. No functions are configured.');
+      }
+      return onlyFunction;
     }
     throw new Error(
       `Function name required. Available: ${config.functions.map((f) => f.name).join(', ')}`,

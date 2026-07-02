@@ -29,7 +29,7 @@ export function getDefaultEventData(trigger: Trigger): unknown {
 
 export function buildEventForTrigger(
   trigger: Trigger,
-  data: unknown | undefined,
+  data?: unknown,
   options: BuildEventOptions = {},
 ): unknown {
   const region = options.region ?? 'us-east-1';
@@ -54,7 +54,7 @@ export function buildEventForTrigger(
       return buildScheduledEvent(payload, region);
     default: {
       const exhaustive: never = trigger;
-      throw new Error(`Unknown trigger "${exhaustive}"`);
+      throw new Error(`Unknown trigger: ${String(exhaustive)}`);
     }
   }
 }

@@ -8,14 +8,18 @@ export type S3EventOptions = {
 
 export const defaultS3Data = { key: 'sample.json' };
 
+function readStringField(value: unknown): string | undefined {
+  return typeof value === 'string' ? value : undefined;
+}
+
 export function buildS3Event(data: unknown, options: S3EventOptions = {}) {
   const region = options.region ?? 'us-east-1';
   const meta =
     data && typeof data === 'object' && !Array.isArray(data)
       ? (data as Record<string, unknown>)
       : {};
-  const bucket = String(meta.bucket ?? options.bucket ?? 'local-bucket');
-  const key = String(meta.key ?? options.key ?? defaultS3Data.key);
+  const bucket = readStringField(meta.bucket) ?? options.bucket ?? 'local-bucket';
+  const key = readStringField(meta.key) ?? options.key ?? defaultS3Data.key;
   const eventTime = new Date().toISOString();
 
   return {

@@ -76,10 +76,15 @@ function maybeReexecForInspect(options: TestCommandOptions): void {
     return;
   }
 
+  const entryScript = process.argv[1];
+  if (!entryScript) {
+    throw new Error('Missing CLI entry script path');
+  }
+
   const inspectFlag = options.inspectBrk ? '--inspect-brk' : '--inspect';
   const result = spawnSync(
     process.execPath,
-    [inspectFlag, process.argv[1]!, ...process.argv.slice(2)],
+    [inspectFlag, entryScript, ...process.argv.slice(2)],
     {
       stdio: 'inherit',
       env: { ...process.env, LAMKIT_REEXEC: '1' },

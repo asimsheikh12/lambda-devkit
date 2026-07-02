@@ -1,7 +1,7 @@
 import { loadConfig } from '../config/load.js';
-import { maskUrl, redactSecrets, resolveFunction } from '../config/merge.js';
+import { maskUrl, redactSecrets, resolveFunction, type MergedFunctionConfig } from '../config/merge.js';
 
-function maskAwsFields(fn: Record<string, unknown>): Record<string, unknown> {
+function maskAwsFields(fn: MergedFunctionConfig): MergedFunctionConfig {
   const aws = fn.aws;
   if (!aws || typeof aws !== 'object') {
     return fn;
@@ -26,9 +26,7 @@ export async function runConfigCommand(
   const config = await loadConfig(cwd, options.reloadConfig ? { reload: true } : undefined);
   const fn = resolveFunction(config, functionName);
 
-  const output = redactSecrets(
-    maskAwsFields(fn as unknown as Record<string, unknown>),
-  );
+  const output = redactSecrets(maskAwsFields(fn));
 
   console.log(JSON.stringify(output, null, 2));
   return 0;

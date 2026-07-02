@@ -144,7 +144,7 @@ program
   .action(async (options: { force?: boolean; yes?: boolean; cwd: string }) => {
     try {
       const { runInitCommand } = await import('./commands/init.js');
-      process.exitCode = await runInitCommand({
+      process.exitCode = runInitCommand({
         cwd: options.cwd,
         force: options.force,
         yes: options.yes,

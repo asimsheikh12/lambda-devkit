@@ -46,7 +46,7 @@ export function queueArnFromUrl(queueUrl: string, region: string): string {
     const url = new URL(queueUrl);
     const parts = url.pathname.split('/').filter(Boolean);
     const queueName = parts[parts.length - 1] ?? 'local-queue';
-    const accountId = parts.length >= 2 ? parts[parts.length - 2]! : '000000000000';
+    const accountId = parts.length >= 2 ? (parts.at(-2) ?? '000000000000') : '000000000000';
     return `arn:aws:sqs:${region}:${accountId}:${queueName}`;
   } catch {
     return `arn:aws:sqs:${region}:000000000000:local-queue`;

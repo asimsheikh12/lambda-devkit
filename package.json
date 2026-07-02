@@ -42,7 +42,7 @@
     "build": "rm -rf dist && tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "npm run typecheck && npm run lint:eslint",
-    "lint:eslint": "eslint src",
+    "lint:eslint": "eslint src tests",
     "audit": "npm audit --audit-level=moderate",
     "security": "npm run audit && npm run lint:eslint",
     "test": "npm run build && node scripts/run-tests.mjs",

@@ -13,7 +13,7 @@ export type Handler = (
   event: unknown,
   context: Context,
   callback?: (error?: Error | string | null, result?: unknown) => void,
-) => unknown | Promise<unknown>;
+) => void | Promise<unknown>;
 
 /** Result of a local `invokeHandler()` call. */
 export type InvokeResult = {
@@ -64,8 +64,8 @@ function invokeWithCallback(
 
     try {
       const maybePromise = handler(event, context, callback);
-      if (maybePromise && typeof (maybePromise as Promise<unknown>).then === 'function') {
-        (maybePromise as Promise<unknown>)
+      if (maybePromise && typeof maybePromise.then === 'function') {
+        maybePromise
           .then((result) => {
             if (!settled) {
               settled = true;
